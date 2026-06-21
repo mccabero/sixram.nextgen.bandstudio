@@ -1,6 +1,14 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 
 import { publicRead } from '@/access'
+
+const requireBlobStorageOnVercel: CollectionBeforeChangeHook = ({ req }) => {
+  if (process.env.VERCEL && !process.env.BLOB_READ_WRITE_TOKEN && req.file) {
+    throw new Error(
+      'Media uploads on Vercel require BLOB_READ_WRITE_TOKEN. Add Vercel Blob storage, redeploy, then upload the file again.',
+    )
+  }
+}
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -15,6 +23,9 @@ export const Media: CollectionConfig = {
   labels: {
     plural: 'Media',
     singular: 'Media Asset',
+  },
+  hooks: {
+    beforeChange: [requireBlobStorageOnVercel],
   },
   fields: [
     {

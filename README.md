@@ -74,7 +74,7 @@ Example values are provided in `.env.example`.
 * `DATABASE_URL`: Neon PostgreSQL connection string used by Payload's Postgres adapter
 * `PAYLOAD_SECRET`: secret used by Payload authentication and session handling
 * `NEXT_PUBLIC_SITE_URL`: base URL for local and deployed metadata
-* `BLOB_READ_WRITE_TOKEN`: optional Vercel Blob token for Vercel Blob uploads
+* `BLOB_READ_WRITE_TOKEN`: optional in local development, but required on Vercel if you want Payload media uploads to work reliably
 
 ## Useful Commands
 
@@ -292,6 +292,7 @@ corepack pnpm run seed
 * Add Blob storage to the Vercel project.
 * Set `BLOB_READ_WRITE_TOKEN` in the Vercel environment.
 * The Vercel Blob adapter is enabled automatically when the token is present.
+* On Vercel, do not rely on local Payload file storage for media uploads. Without `BLOB_READ_WRITE_TOKEN`, media records may save in the database while the actual file URL fails in production.
 * Without the token, local Payload uploads fall back to local storage for development.
 * The Media collection accepts image, audio, video, and PDF uploads for content management.
 
