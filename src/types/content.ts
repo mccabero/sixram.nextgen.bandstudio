@@ -64,7 +64,7 @@ export type ContactInfoData = {
   address: string
   bookingInstructions: string
   businessHours: string
-  contactNumber: string
+  contactNumber?: string | null
   facebookPage?: string | null
   googleMapsLink?: string | null
   studioName: string

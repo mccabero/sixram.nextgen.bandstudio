@@ -8,8 +8,13 @@ export const Media: CollectionConfig = {
     read: publicRead,
   },
   admin: {
+    defaultColumns: ['filename', 'alt', 'caption', 'createdAt'],
     group: 'Content',
     useAsTitle: 'alt',
+  },
+  labels: {
+    plural: 'Media',
+    singular: 'Media Asset',
   },
   fields: [
     {
@@ -17,11 +22,18 @@ export const Media: CollectionConfig = {
       label: 'Alt Text / Media Label',
       type: 'text',
       required: true,
+      admin: {
+        description:
+          'Use descriptive alt text for accessibility and SEO. Example: Dark rehearsal studio setup with drums, amplifiers, microphones, and warm lighting.',
+      },
     },
     {
       name: 'caption',
       label: 'Caption',
       type: 'textarea',
+      admin: {
+        description: 'Optional caption or internal note for the uploaded media item.',
+      },
     },
   ],
   upload: {

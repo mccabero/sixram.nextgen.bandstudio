@@ -49,7 +49,7 @@ export function Footer({ contactInfo, ctaHref, ctaLabel, logo }: FooterProps) {
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <BookNowButton
-                href={ctaHref || contactInfo.facebookPage || '/contact#booking'}
+                href={ctaHref || '/contact'}
                 label={ctaLabel || 'Book a Session'}
               />
 
@@ -92,8 +92,10 @@ export function Footer({ contactInfo, ctaHref, ctaLabel, logo }: FooterProps) {
                 <a className="transition hover:text-white" href={phoneHref}>
                   {contactInfo.contactNumber}
                 </a>
-              ) : (
+              ) : contactInfo.contactNumber ? (
                 <p>{contactInfo.contactNumber}</p>
+              ) : (
+                <p>Contact number will appear here once it is added.</p>
               )}
             </div>
 

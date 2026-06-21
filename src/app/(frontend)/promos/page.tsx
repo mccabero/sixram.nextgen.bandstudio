@@ -4,20 +4,17 @@ import { PageHeading } from '@/components/site/page-heading'
 import { PageShell } from '@/components/site/page-shell'
 import { PromoCard } from '@/components/site/promo-card'
 import { SectionContainer } from '@/components/site/section-container'
-import { getContactInfoData, getPromosData, getSiteSettingsData } from '@/lib/site-data'
+import { getPromosData, getSiteSettingsData } from '@/lib/site-data'
+import { getPrimaryCtaHref } from '@/lib/utils'
 
 export const metadata = {
   title: 'Promos',
 }
 
 export default async function PromosPage() {
-  const [promos, siteSettings, contactInfo] = await Promise.all([
-    getPromosData(),
-    getSiteSettingsData(),
-    getContactInfoData(),
-  ])
+  const [promos, siteSettings] = await Promise.all([getPromosData(), getSiteSettingsData()])
 
-  const ctaHref = siteSettings.mainCtaLink || contactInfo.facebookPage
+  const ctaHref = getPrimaryCtaHref(siteSettings.mainCtaLink)
 
   return (
     <PageShell>

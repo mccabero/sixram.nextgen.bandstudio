@@ -6,6 +6,7 @@ import {
   isFeaturedField,
   mediaUploadField,
   optionalUrlField,
+  youtubeUrlField,
 } from '@/fields/shared'
 
 export const FeaturedBands: CollectionConfig = {
@@ -18,52 +19,97 @@ export const FeaturedBands: CollectionConfig = {
     group: 'Content',
     useAsTitle: 'bandName',
   },
+  labels: {
+    plural: 'Featured Bands',
+    singular: 'Featured Band',
+  },
   fields: [
     {
-      name: 'bandName',
-      label: 'Band Name',
-      type: 'text',
-      required: true,
-    },
-    {
-      name: 'genre',
-      label: 'Genre',
-      type: 'text',
-      required: true,
-    },
-    {
-      name: 'description',
-      label: 'Description',
-      type: 'textarea',
-      required: true,
-    },
-    mediaUploadField({
-      filterOptions: {
-        mimeType: {
-          contains: 'image/',
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Band Info',
+          fields: [
+            {
+              name: 'bandName',
+              label: 'Band Name',
+              type: 'text',
+              required: true,
+              admin: {
+                description: 'Public name of the featured band or artist.',
+              },
+            },
+            {
+              name: 'genre',
+              label: 'Genre',
+              type: 'text',
+              required: true,
+              admin: {
+                description: 'Example: Alternative Rock, Pop Punk, or Indie.',
+              },
+            },
+            {
+              name: 'description',
+              label: 'Description',
+              type: 'textarea',
+              admin: {
+                description: 'Optional short profile shown on the public Featured Bands page.',
+              },
+            },
+          ],
         },
-      },
-      label: 'Band Photo',
-      name: 'bandPhoto',
-    }),
-    optionalUrlField({
-      description: 'Paste a public YouTube URL for the featured performance.',
-      label: 'YouTube Video URL',
-      name: 'youtubeVideoUrl',
-    }),
-    optionalUrlField({
-      label: 'Facebook Link',
-      name: 'facebookLink',
-    }),
-    optionalUrlField({
-      label: 'Instagram Link',
-      name: 'instagramLink',
-    }),
-    optionalUrlField({
-      label: 'TikTok Link',
-      name: 'tiktokLink',
-    }),
-    isFeaturedField,
-    displayOrderField,
+        {
+          label: 'Media',
+          fields: [
+            mediaUploadField({
+              description: 'Optional hero image or band photo for the public profile.',
+              filterOptions: {
+                mimeType: {
+                  contains: 'image/',
+                },
+              },
+              label: 'Band Photo',
+              name: 'bandPhoto',
+            }),
+          ],
+        },
+        {
+          label: 'YouTube Video',
+          fields: [youtubeUrlField()],
+        },
+        {
+          label: 'Social Links',
+          fields: [
+            optionalUrlField({
+              description: 'Optional public Facebook page or profile URL.',
+              label: 'Facebook Link',
+              name: 'facebookLink',
+              placeholder: 'https://www.facebook.com/your-page',
+            }),
+            optionalUrlField({
+              description: 'Optional public Instagram profile URL.',
+              label: 'Instagram Link',
+              name: 'instagramLink',
+              placeholder: 'https://www.instagram.com/your-profile',
+            }),
+            optionalUrlField({
+              description: 'Optional public TikTok profile URL.',
+              label: 'TikTok Link',
+              name: 'tiktokLink',
+              placeholder: 'https://www.tiktok.com/@your-profile',
+            }),
+          ],
+        },
+        {
+          label: 'Publishing Settings',
+          fields: [
+            {
+              type: 'row',
+              fields: [isFeaturedField, displayOrderField],
+            },
+          ],
+        },
+      ],
+    },
   ],
 }

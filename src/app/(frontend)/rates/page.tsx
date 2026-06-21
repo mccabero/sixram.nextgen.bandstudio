@@ -6,26 +6,21 @@ import { PromoCard } from '@/components/site/promo-card'
 import { RateCard } from '@/components/site/rate-card'
 import { SectionContainer } from '@/components/site/section-container'
 import { bookingNotes } from '@/lib/placeholders'
-import {
-  getContactInfoData,
-  getPromosData,
-  getRatesData,
-  getSiteSettingsData,
-} from '@/lib/site-data'
+import { getPromosData, getRatesData, getSiteSettingsData } from '@/lib/site-data'
+import { getPrimaryCtaHref } from '@/lib/utils'
 
 export const metadata = {
   title: 'Rates',
 }
 
 export default async function RatesPage() {
-  const [rates, promos, siteSettings, contactInfo] = await Promise.all([
+  const [rates, promos, siteSettings] = await Promise.all([
     getRatesData(),
     getPromosData(),
     getSiteSettingsData(),
-    getContactInfoData(),
   ])
 
-  const ctaHref = siteSettings.mainCtaLink || contactInfo.facebookPage
+  const ctaHref = getPrimaryCtaHref(siteSettings.mainCtaLink)
 
   return (
     <PageShell>

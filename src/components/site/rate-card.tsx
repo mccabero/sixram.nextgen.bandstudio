@@ -57,12 +57,19 @@ export function RateCard({ rate }: RateCardProps) {
             <BadgeCheck className="mt-0.5 size-4 shrink-0 text-primary" />
             <span>{rate.duration}</span>
           </li>
-          {rate.inclusions.map((inclusion) => (
-            <li className="flex items-start gap-3" key={inclusion}>
+          {rate.inclusions.length ? (
+            rate.inclusions.map((inclusion) => (
+              <li className="flex items-start gap-3" key={inclusion}>
+                <Music4 className="mt-0.5 size-4 shrink-0 text-primary" />
+                <span>{inclusion}</span>
+              </li>
+            ))
+          ) : (
+            <li className="flex items-start gap-3">
               <Music4 className="mt-0.5 size-4 shrink-0 text-primary" />
-              <span>{inclusion}</span>
+              <span>Package inclusions will be added soon.</span>
             </li>
-          ))}
+          )}
         </ul>
       </div>
 

@@ -280,7 +280,7 @@ async function run() {
   await seedGallery(payload, mediaIds)
   await seedGlobals(payload, mediaIds)
 
-  console.log('Phase 1 starter content has been seeded.')
+  console.log('Phase 3 starter content has been seeded.')
 }
 
 run().catch((error) => {

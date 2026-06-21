@@ -28,13 +28,27 @@ import {
 } from '@/lib/placeholders'
 import { isPromoActive, sortByDisplayOrder, sortFeaturedFirst } from '@/lib/utils'
 
+function optionalText(value: string | null | undefined) {
+  if (typeof value !== 'string') {
+    return null
+  }
+
+  const trimmed = value.trim()
+
+  return trimmed ? trimmed : null
+}
+
+function requiredText(value: string | null | undefined, fallback: string) {
+  return optionalText(value) ?? fallback
+}
+
 function mediaToAsset(media?: Media | number | null): MediaAsset | null {
   if (!media || typeof media === 'number') {
     return null
   }
 
   return {
-    alt: media.alt,
+    alt: requiredText(media.alt, 'Sixram Band Studio media item'),
     thumbnailUrl: media.thumbnailURL,
     url: media.url,
   }
@@ -42,8 +56,8 @@ function mediaToAsset(media?: Media | number | null): MediaAsset | null {
 
 function mapRate(rate: PayloadRate): RateItem {
   return {
-    description: rate.description,
-    displayOrder: rate.displayOrder ?? 0,
+    description: requiredText(rate.description, 'Rate details will be added soon.'),
+    displayOrder: rate.displayOrder ?? 100,
     duration: rate.duration,
     id: rate.id,
     inclusions: rate.inclusions?.map((entry) => entry.item) ?? [],
@@ -57,70 +71,76 @@ function mapRate(rate: PayloadRate): RateItem {
 function mapGalleryItem(item: PayloadGallery): GalleryItem {
   return {
     approvedForPosting: Boolean(item.approvedForPosting),
-    bandOrClientName: item.bandOrClientName,
-    caption: item.caption,
-    displayOrder: item.displayOrder ?? 0,
+    bandOrClientName: optionalText(item.bandOrClientName),
+    caption: optionalText(item.caption),
+    displayOrder: item.displayOrder ?? 100,
     id: item.id,
     images: (item.images ?? []).map((image) => mediaToAsset(image)).filter(Boolean) as MediaAsset[],
     isFeatured: Boolean(item.isFeatured),
     sessionDate: item.sessionDate,
-    title: item.title,
+    title: requiredText(item.title, 'Gallery Item'),
   }
 }
 
 function mapFeaturedBand(band: PayloadFeaturedBand): FeaturedBandItem {
   return {
-    bandName: band.bandName,
+    bandName: requiredText(band.bandName, 'Featured Band'),
     bandPhoto: mediaToAsset(band.bandPhoto),
-    description: band.description,
-    displayOrder: band.displayOrder ?? 0,
-    facebookLink: band.facebookLink,
-    genre: band.genre,
+    description: requiredText(
+      band.description,
+      'Band profile details will appear here once they are added in Payload CMS.',
+    ),
+    displayOrder: band.displayOrder ?? 100,
+    facebookLink: optionalText(band.facebookLink),
+    genre: requiredText(band.genre, 'Band'),
     id: band.id,
-    instagramLink: band.instagramLink,
+    instagramLink: optionalText(band.instagramLink),
     isFeatured: Boolean(band.isFeatured),
-    tiktokLink: band.tiktokLink,
-    youtubeVideoUrl: band.youtubeVideoUrl,
+    tiktokLink: optionalText(band.tiktokLink),
+    youtubeVideoUrl: optionalText(band.youtubeVideoUrl),
   }
 }
 
 function mapPromo(promo: PayloadPromo): PromoItem {
   return {
-    description: promo.description,
-    displayOrder: promo.displayOrder ?? 0,
+    description: requiredText(promo.description, 'Promo details will be added soon.'),
+    displayOrder: promo.displayOrder ?? 100,
     endDate: promo.endDate,
     id: promo.id,
     isActive: Boolean(promo.isActive),
     originalPrice: promo.originalPrice,
     promoImage: mediaToAsset(promo.promoImage),
     promoPrice: promo.promoPrice,
-    promoTitle: promo.promoTitle,
+    promoTitle: requiredText(promo.promoTitle, 'Studio Promo'),
     startDate: promo.startDate,
   }
 }
 
 function mapContactInfo(contactInfo: PayloadContactInfo): ContactInfoData {
   return {
-    address: contactInfo.address,
-    bookingInstructions: contactInfo.bookingInstructions,
-    businessHours: contactInfo.businessHours,
-    contactNumber: contactInfo.contactNumber,
-    facebookPage: contactInfo.facebookPage,
-    googleMapsLink: contactInfo.googleMapsLink,
-    studioName: contactInfo.studioName,
+    address: requiredText(contactInfo.address, placeholderContactInfo.address),
+    bookingInstructions: requiredText(
+      contactInfo.bookingInstructions,
+      placeholderContactInfo.bookingInstructions,
+    ),
+    businessHours: requiredText(contactInfo.businessHours, placeholderContactInfo.businessHours),
+    contactNumber: optionalText(contactInfo.contactNumber),
+    facebookPage: optionalText(contactInfo.facebookPage),
+    googleMapsLink: optionalText(contactInfo.googleMapsLink),
+    studioName: requiredText(contactInfo.studioName, placeholderContactInfo.studioName),
   }
 }
 
 function mapSiteSettings(settings: PayloadSiteSetting): SiteSettingsData {
   return {
     heroImage: mediaToAsset(settings.heroImage),
-    heroSubtitle: settings.heroSubtitle,
-    heroTitle: settings.heroTitle,
+    heroSubtitle: requiredText(settings.heroSubtitle, placeholderSiteSettings.heroSubtitle),
+    heroTitle: requiredText(settings.heroTitle, placeholderSiteSettings.heroTitle),
     logo: mediaToAsset(settings.logo),
-    mainCtaLink: settings.mainCtaLink,
-    mainCtaText: settings.mainCtaText,
-    seoDescription: settings.seoDescription,
-    seoTitle: settings.seoTitle,
+    mainCtaLink: optionalText(settings.mainCtaLink),
+    mainCtaText: requiredText(settings.mainCtaText, placeholderSiteSettings.mainCtaText),
+    seoDescription: requiredText(settings.seoDescription, placeholderSiteSettings.seoDescription),
+    seoTitle: requiredText(settings.seoTitle, placeholderSiteSettings.seoTitle),
   }
 }
 
@@ -146,7 +166,9 @@ export async function getRatesData() {
       limit: 100,
     })
 
-    return sortByDisplayOrder((result.docs as PayloadRate[]).map(mapRate).filter((item) => item.isActive))
+    return sortByDisplayOrder((result.docs as PayloadRate[]).filter((item) => Boolean(item.isActive))).map(
+      mapRate,
+    )
   })
 }
 
@@ -160,10 +182,8 @@ export async function getGalleryData() {
     })
 
     return sortFeaturedFirst(
-      (result.docs as PayloadGallery[])
-        .map(mapGalleryItem)
-        .filter((item) => item.approvedForPosting),
-    )
+      (result.docs as PayloadGallery[]).filter((item) => Boolean(item.approvedForPosting)),
+    ).map(mapGalleryItem)
   })
 }
 
@@ -176,7 +196,7 @@ export async function getFeaturedBandsData() {
       limit: 100,
     })
 
-    return sortFeaturedFirst((result.docs as PayloadFeaturedBand[]).map(mapFeaturedBand))
+    return sortFeaturedFirst(result.docs as PayloadFeaturedBand[]).map(mapFeaturedBand)
   })
 }
 
@@ -190,16 +210,14 @@ export async function getPromosData() {
     })
 
     return sortByDisplayOrder(
-      (result.docs as PayloadPromo[])
-        .map(mapPromo)
-        .filter((promo) =>
-          isPromoActive({
-            endDate: promo.endDate,
-            isActive: promo.isActive,
-            startDate: promo.startDate,
-          }),
-        ),
-    )
+      (result.docs as PayloadPromo[]).filter((promo) =>
+        isPromoActive({
+          endDate: promo.endDate,
+          isActive: promo.isActive,
+          startDate: promo.startDate,
+        }),
+      ),
+    ).map(mapPromo)
   })
 }
 

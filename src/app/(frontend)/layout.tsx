@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { Footer } from '@/components/site/footer'
 import { Header } from '@/components/site/header'
 import { getContactInfoData, getSiteSettingsData } from '@/lib/site-data'
+import { getPrimaryCtaHref } from '@/lib/utils'
 
 import '../globals.css'
 
@@ -19,7 +20,21 @@ const bodyFont = Space_Grotesk({
   variable: '--font-space-grotesk',
 })
 
-const metadataBase = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+const fallbackMetadataBase = 'http://localhost:3000'
+
+function resolveMetadataBase() {
+  const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+
+  if (!configuredUrl) {
+    return new URL(fallbackMetadataBase)
+  }
+
+  try {
+    return new URL(configuredUrl)
+  } catch {
+    return new URL(fallbackMetadataBase)
+  }
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -28,7 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     description: siteSettings.seoDescription,
-    metadataBase: new URL(metadataBase),
+    metadataBase: resolveMetadataBase(),
     title: {
       default: siteSettings.seoTitle,
       template: `%s | ${contactInfo.studioName}`,
@@ -42,6 +57,7 @@ type FrontendLayoutProps = {
 
 export default async function FrontendLayout({ children }: FrontendLayoutProps) {
   const [siteSettings, contactInfo] = await Promise.all([getSiteSettingsData(), getContactInfoData()])
+  const ctaHref = getPrimaryCtaHref(siteSettings.mainCtaLink)
 
   return (
     <html
@@ -52,7 +68,7 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
       <body className="min-h-screen bg-background text-foreground antialiased">
         <div className="flex min-h-screen flex-col">
           <Header
-            ctaHref={siteSettings.mainCtaLink || contactInfo.facebookPage}
+            ctaHref={ctaHref}
             ctaLabel={siteSettings.mainCtaText}
             logo={siteSettings.logo}
             siteName={contactInfo.studioName}
@@ -60,7 +76,7 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
           <main className="flex-1">{children}</main>
           <Footer
             contactInfo={contactInfo}
-            ctaHref={siteSettings.mainCtaLink || contactInfo.facebookPage}
+            ctaHref={ctaHref}
             ctaLabel={siteSettings.mainCtaText}
             logo={siteSettings.logo}
           />

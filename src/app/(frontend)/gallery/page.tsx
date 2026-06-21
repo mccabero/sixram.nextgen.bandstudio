@@ -4,21 +4,17 @@ import { GalleryCard } from '@/components/site/gallery-card'
 import { PageHeading } from '@/components/site/page-heading'
 import { PageShell } from '@/components/site/page-shell'
 import { SectionContainer } from '@/components/site/section-container'
-import { getContactInfoData, getGalleryData, getSiteSettingsData } from '@/lib/site-data'
-import { cn } from '@/lib/utils'
+import { getGalleryData, getSiteSettingsData } from '@/lib/site-data'
+import { cn, getPrimaryCtaHref } from '@/lib/utils'
 
 export const metadata = {
   title: 'Gallery',
 }
 
 export default async function GalleryPage() {
-  const [gallery, siteSettings, contactInfo] = await Promise.all([
-    getGalleryData(),
-    getSiteSettingsData(),
-    getContactInfoData(),
-  ])
+  const [gallery, siteSettings] = await Promise.all([getGalleryData(), getSiteSettingsData()])
 
-  const ctaHref = siteSettings.mainCtaLink || contactInfo.facebookPage
+  const ctaHref = getPrimaryCtaHref(siteSettings.mainCtaLink)
 
   return (
     <PageShell>

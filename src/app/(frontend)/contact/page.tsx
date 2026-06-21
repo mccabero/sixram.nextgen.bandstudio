@@ -7,7 +7,7 @@ import { PageShell } from '@/components/site/page-shell'
 import { SectionContainer } from '@/components/site/section-container'
 import { Button } from '@/components/ui/button'
 import { getContactInfoData, getSiteSettingsData } from '@/lib/site-data'
-import { getPhoneHref, isExternalUrl } from '@/lib/utils'
+import { getPhoneHref, getPrimaryCtaHref, isExternalUrl } from '@/lib/utils'
 
 export const metadata = {
   title: 'Contact',
@@ -15,7 +15,7 @@ export const metadata = {
 
 export default async function ContactPage() {
   const [contactInfo, siteSettings] = await Promise.all([getContactInfoData(), getSiteSettingsData()])
-  const ctaHref = siteSettings.mainCtaLink || contactInfo.facebookPage
+  const ctaHref = getPrimaryCtaHref(siteSettings.mainCtaLink)
   const phoneHref = getPhoneHref(contactInfo.contactNumber)
 
   return (
@@ -87,8 +87,10 @@ export default async function ContactPage() {
                 <a className="mt-4 block text-xl font-semibold text-white transition hover:text-primary" href={phoneHref}>
                   {contactInfo.contactNumber}
                 </a>
-              ) : (
+              ) : contactInfo.contactNumber ? (
                 <p className="mt-4 text-xl font-semibold text-white">{contactInfo.contactNumber}</p>
+              ) : (
+                <p className="mt-4 text-base text-muted-foreground">Add a contact number in Payload CMS to show it here.</p>
               )}
             </div>
 

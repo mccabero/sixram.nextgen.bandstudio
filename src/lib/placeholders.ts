@@ -37,17 +37,17 @@ export const placeholderSiteSettings: SiteSettingsData = {
     url: '/placeholders/studio-hero.svg',
   },
   heroSubtitle:
-    'Dark, loud, and production-ready rehearsal space for bands that want to practice tight and leave with something worth replaying.',
-  heroTitle: 'Rehearse hard. Capture the moment. Sound ready for the next set.',
+    'Band rehearsal studio with quality gear, live session energy, and optional multitrack recording.',
+  heroTitle: 'Sixram Band Studio',
   logo: {
     alt: 'Sixram Band Studio official logo',
     url: '/branding/sixram-logo.png',
   },
-  mainCtaLink: '/contact#booking',
-  mainCtaText: 'Book Now',
+  mainCtaLink: '/contact',
+  mainCtaText: 'Book Your Session',
   seoDescription:
-    'Sixram Band Studio is a modern rehearsal space with optional multitrack live recording, active promos, and reservation-based booking.',
-  seoTitle: 'Sixram Band Studio | Rehearsal Room and Live Recording Promos',
+    'Book band rehearsals at Sixram Band Studio with quality amps, drums, microphones, speakers, and optional multitrack live recording. By reservation only.',
+  seoTitle: 'Sixram Band Studio | Rehearsal & Live Recording Studio',
 }
 
 export const placeholderContactInfo: ContactInfoData = {
@@ -94,7 +94,7 @@ export const placeholderPromos: PromoItem[] = [
     endDate: '2027-12-31T23:59:59.000Z',
     id: 1,
     isActive: true,
-    originalPrice: 900,
+    originalPrice: 899,
     promoImage: {
       alt: 'Promo recording session placeholder',
       url: '/placeholders/promo-recording.svg',

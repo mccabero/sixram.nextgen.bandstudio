@@ -18,35 +18,81 @@ export const Rates: CollectionConfig = {
     group: 'Content',
     useAsTitle: 'packageName',
   },
+  labels: {
+    plural: 'Rates',
+    singular: 'Rate',
+  },
   fields: [
     {
-      name: 'packageName',
-      label: 'Package Name',
-      type: 'text',
-      required: true,
+      type: 'tabs',
+      tabs: [
+        {
+          label: 'Package Info',
+          fields: [
+            {
+              name: 'packageName',
+              label: 'Package Name',
+              type: 'text',
+              required: true,
+              admin: {
+                description: 'Public name of the rehearsal package or rate.',
+              },
+            },
+            {
+              name: 'description',
+              label: 'Description',
+              type: 'textarea',
+              required: true,
+              admin: {
+                description: 'Short public summary shown on rate cards and preview sections.',
+              },
+            },
+          ],
+        },
+        {
+          label: 'Pricing',
+          fields: [
+            {
+              type: 'row',
+              fields: [
+                {
+                  name: 'duration',
+                  label: 'Duration',
+                  type: 'text',
+                  required: true,
+                  admin: {
+                    description: 'Example: 1 hour or 2 hours.',
+                  },
+                },
+                {
+                  name: 'price',
+                  label: 'Price',
+                  type: 'number',
+                  min: 0,
+                  required: true,
+                  admin: {
+                    description: 'Enter the numeric price only. The website adds the currency format.',
+                    step: 1,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          label: 'Inclusions',
+          fields: [inclusionsField],
+        },
+        {
+          label: 'Publishing Settings',
+          fields: [
+            {
+              type: 'row',
+              fields: [isFeaturedField, isActiveField, displayOrderField],
+            },
+          ],
+        },
+      ],
     },
-    {
-      name: 'description',
-      label: 'Description',
-      type: 'textarea',
-      required: true,
-    },
-    {
-      name: 'duration',
-      label: 'Duration',
-      type: 'text',
-      required: true,
-    },
-    {
-      name: 'price',
-      label: 'Price',
-      type: 'number',
-      min: 0,
-      required: true,
-    },
-    inclusionsField,
-    isFeaturedField,
-    isActiveField,
-    displayOrderField,
   ],
 }

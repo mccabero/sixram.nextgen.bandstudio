@@ -16,7 +16,7 @@ import {
   getRatesData,
   getSiteSettingsData,
 } from '@/lib/site-data'
-import { formatCurrency, formatPromoWindow, getMediaSrc } from '@/lib/utils'
+import { formatCurrency, formatPromoWindow, getMediaSrc, getPrimaryCtaHref } from '@/lib/utils'
 
 function pickFeaturedItems<T extends { isFeatured?: boolean | null }>(items: T[], limit: number) {
   return items.filter((item) => Boolean(item.isFeatured)).slice(0, limit)
@@ -32,12 +32,13 @@ export default async function HomePage() {
     getFeaturedBandsData(),
   ])
 
-  const ctaHref = siteSettings.mainCtaLink || contactInfo.facebookPage
+  const ctaHref = getPrimaryCtaHref(siteSettings.mainCtaLink)
   const currentPromo = promos[0]
   const highlightedRate = rates[0]
   const featuredRates = pickFeaturedItems(rates, 2)
   const galleryPreview = pickFeaturedItems(gallery, 3)
   const featuredBandsPreview = pickFeaturedItems(featuredBands, 3)
+  const hasHeroImage = Boolean(siteSettings.heroImage?.url || siteSettings.heroImage?.thumbnailUrl)
 
   return (
     <PageShell className="space-y-20 sm:space-y-24">
@@ -87,12 +88,28 @@ export default async function HomePage() {
           </div>
 
           <div className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-black/35 p-4 shadow-[0_40px_120px_-70px_rgba(209,31,42,0.65)]">
-            <MediaFrame
-              alt={siteSettings.heroImage?.alt || 'Sixram Band Studio hero image'}
-              className="min-h-[26rem] rounded-[1.6rem] lg:min-h-[34rem]"
-              priority
-              src={getMediaSrc(siteSettings.heroImage, '/placeholders/studio-hero.svg')}
-            />
+            {hasHeroImage ? (
+              <MediaFrame
+                alt={siteSettings.heroImage?.alt || 'Sixram Band Studio hero image'}
+                className="min-h-[26rem] rounded-[1.6rem] lg:min-h-[34rem]"
+                priority
+                src={getMediaSrc(siteSettings.heroImage, '/placeholders/studio-hero.svg')}
+              />
+            ) : (
+              <div className="flex min-h-[26rem] rounded-[1.6rem] border border-white/8 bg-[radial-gradient(circle_at_top,_rgba(209,31,42,0.24),_transparent_42%),linear-gradient(180deg,rgba(18,18,18,0.96),rgba(5,5,5,1))] p-8 lg:min-h-[34rem]">
+                <div className="mt-auto max-w-sm space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+                    Hero Image Optional
+                  </p>
+                  <p className="font-display text-3xl uppercase tracking-[0.08em] text-white">
+                    {contactInfo.studioName}
+                  </p>
+                  <p className="text-sm leading-7 text-white/72">
+                    Upload a hero image in Site Settings to replace this clean dark studio fallback.
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="absolute inset-x-8 bottom-8 max-w-md rounded-[1.5rem] border border-white/10 bg-black/72 p-5 backdrop-blur">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.28em] text-primary">
@@ -349,12 +366,14 @@ export default async function HomePage() {
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <BookNowButton href={ctaHref} label={siteSettings.mainCtaText} size="lg" />
-            <BookNowButton
-              href={contactInfo.facebookPage || '/contact'}
-              label="Message on Facebook"
-              size="lg"
-              variant="outline"
-            />
+            {contactInfo.facebookPage ? (
+              <BookNowButton
+                href={contactInfo.facebookPage}
+                label="Message on Facebook"
+                size="lg"
+                variant="outline"
+              />
+            ) : null}
           </div>
         </div>
       </SectionContainer>

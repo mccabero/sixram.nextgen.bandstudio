@@ -4,20 +4,17 @@ import { EmptyState } from '@/components/site/empty-state'
 import { PageHeading } from '@/components/site/page-heading'
 import { PageShell } from '@/components/site/page-shell'
 import { SectionContainer } from '@/components/site/section-container'
-import { getContactInfoData, getFeaturedBandsData, getSiteSettingsData } from '@/lib/site-data'
+import { getFeaturedBandsData, getSiteSettingsData } from '@/lib/site-data'
+import { getPrimaryCtaHref } from '@/lib/utils'
 
 export const metadata = {
   title: 'Featured Bands',
 }
 
 export default async function FeaturedBandsPage() {
-  const [bands, siteSettings, contactInfo] = await Promise.all([
-    getFeaturedBandsData(),
-    getSiteSettingsData(),
-    getContactInfoData(),
-  ])
+  const [bands, siteSettings] = await Promise.all([getFeaturedBandsData(), getSiteSettingsData()])
 
-  const ctaHref = siteSettings.mainCtaLink || contactInfo.facebookPage
+  const ctaHref = getPrimaryCtaHref(siteSettings.mainCtaLink)
 
   return (
     <PageShell>
