@@ -3,8 +3,7 @@ import 'dotenv/config'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import path from 'path'
-import { buildConfig, type SharpDependency } from 'payload'
-import sharp from 'sharp'
+import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { FeaturedBands } from '@/collections/FeaturedBands'
@@ -57,7 +56,6 @@ export default buildConfig({
     admin: '/admin',
   },
   secret: payloadSecret,
-  sharp: sharp as unknown as SharpDependency,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

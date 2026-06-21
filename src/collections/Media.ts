@@ -37,20 +37,6 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
-    adminThumbnail: 'thumbnail',
-    focalPoint: true,
-    imageSizes: [
-      {
-        height: 720,
-        name: 'card',
-        width: 1280,
-      },
-      {
-        height: 480,
-        name: 'thumbnail',
-        width: 640,
-      },
-    ],
     mimeTypes: ['image/*', 'audio/*', 'video/*', 'application/pdf'],
   },
 }
