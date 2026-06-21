@@ -45,6 +45,7 @@ export default buildConfig({
   globals: [ContactInfo, SiteSettings],
   plugins: [
     vercelBlobStorage({
+      clientUploads: true,
       collections: {
         media: true,
       },
