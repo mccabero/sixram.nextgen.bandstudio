@@ -18,6 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata({
     contactInfo,
     description: 'View Sixram Band Studio rehearsal rates, promo packages, inclusions, and booking notes.',
+    ogPage: 'rates',
     path: '/rates',
     siteSettings,
     title: 'Rates',

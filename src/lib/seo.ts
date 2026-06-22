@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 
+import { getOgImagePath, type OgPageKey } from '@/lib/og'
 import { placeholderContactInfo, placeholderSiteSettings } from '@/lib/placeholders'
 import { getMediaSrc, hasMeaningfulExternalUrl, isExternalUrl } from '@/lib/utils'
 import type { ContactInfoData, SiteSettingsData } from '@/types/content'
@@ -99,6 +100,7 @@ export function getAbsoluteSiteUrl(path = '/') {
 type BuildPageMetadataArgs = {
   contactInfo?: ContactInfoData | null
   description?: string | null
+  ogPage: OgPageKey
   path: string
   siteSettings?: SiteSettingsData | null
   title?: string | null
@@ -108,6 +110,7 @@ type BuildPageMetadataArgs = {
 export function buildPageMetadata({
   contactInfo,
   description,
+  ogPage,
   path,
   siteSettings,
   title,
@@ -117,8 +120,8 @@ export function buildPageMetadata({
   const pageTitle = title?.trim() || siteSettings?.seoTitle || defaultSeoTitle
   const pageDescription = description?.trim() || siteSettings?.seoDescription || defaultSeoDescription
   const canonical = getAbsoluteSiteUrl(path)
-  const socialImage = resolveSeoImage(siteSettings)
   const fullTitle = getFullPageTitle(pageTitle, siteName, useAbsoluteTitle)
+  const ogImageUrl = getAbsoluteSiteUrl(getOgImagePath(ogPage))
 
   return {
     alternates: {
@@ -129,8 +132,10 @@ export function buildPageMetadata({
       description: pageDescription,
       images: [
         {
-          alt: socialImage.alt,
-          url: socialImage.url,
+          alt: `${fullTitle} social preview`,
+          height: 630,
+          url: ogImageUrl,
+          width: 1200,
         },
       ],
       siteName,
@@ -142,7 +147,7 @@ export function buildPageMetadata({
     twitter: {
       card: 'summary_large_image',
       description: pageDescription,
-      images: [socialImage.url],
+      images: [ogImageUrl],
       title: fullTitle,
     },
   }

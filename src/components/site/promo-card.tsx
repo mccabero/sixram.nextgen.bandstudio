@@ -22,17 +22,17 @@ export function PromoCard({
       : null
 
   return (
-    <article className="grid gap-5 rounded-[1.85rem] border border-white/8 bg-card/85 p-5 shadow-[0_32px_90px_-44px_rgba(0,0,0,0.85)] lg:grid-cols-[0.95fr_1.05fr] lg:p-6">
+    <article className="grid w-full min-w-0 gap-5 rounded-[1.85rem] border border-white/8 bg-card/85 p-4 shadow-[0_32px_90px_-44px_rgba(0,0,0,0.85)] sm:p-5 lg:grid-cols-[0.95fr_1.05fr] lg:p-6">
       <MediaFrame
         alt={promo.promoImage?.alt || promo.promoTitle}
-        className="aspect-[16/9] min-h-[14rem] bg-black/75 p-3"
+        className="aspect-[16/9] min-h-[7.5rem] bg-black/75 p-2 sm:min-h-[12rem] sm:p-3 lg:min-h-[14rem]"
         imageClassName="object-contain object-left"
         sizes="(min-width: 1024px) 38vw, 100vw"
         showOverlay={false}
         src={getMediaSrc(promo.promoImage, '/placeholders/promo-recording.svg')}
       />
 
-      <div className="flex flex-col justify-between gap-6">
+      <div className="flex min-w-0 flex-col justify-between gap-6">
         <div className="space-y-5">
           <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.25em] text-muted-foreground">
             <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-primary">

@@ -28,6 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const homeMetadata = buildPageMetadata({
     contactInfo,
     description: siteSettings.seoDescription,
+    ogPage: 'home',
     path: '/',
     siteSettings,
     title: siteSettings.seoTitle,

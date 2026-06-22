@@ -44,6 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata({
     contactInfo,
     description: 'Browse today, previous days, and upcoming days to check Sixram Band Studio schedule availability before booking.',
+    ogPage: 'schedule',
     path: '/schedule',
     siteSettings,
     title: 'Schedule',

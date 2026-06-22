@@ -17,6 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata({
     contactInfo,
     description: 'Contact Sixram Band Studio to book your next rehearsal or live recording session.',
+    ogPage: 'contact',
     path: '/contact',
     siteSettings,
     title: 'Contact',

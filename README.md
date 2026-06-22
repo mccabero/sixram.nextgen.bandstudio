@@ -243,6 +243,7 @@ The public website now includes:
 * Page-level metadata for Home, Schedule, Rates, Gallery, Featured Bands, Promos, and Contact
 * Canonical URLs based on `NEXT_PUBLIC_SITE_URL`
 * Open Graph and Twitter card metadata for better Facebook, Messenger, and link previews
+* Dynamically generated branded social preview images from `/api/og?page=...`
 * JSON-LD structured data for the studio as a `LocalBusiness`
 * A generated sitemap at `/sitemap.xml`
 * A generated robots file at `/robots.txt`

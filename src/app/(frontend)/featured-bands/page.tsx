@@ -16,6 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata({
     contactInfo,
     description: 'Discover featured bands and artists who rehearsed or recorded at Sixram Band Studio.',
+    ogPage: 'featured-bands',
     path: '/featured-bands',
     siteSettings,
     title: 'Featured Bands',

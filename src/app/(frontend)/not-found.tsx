@@ -13,6 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata({
     contactInfo,
     description: 'The page you tried to open is not available. Head back to Sixram Band Studio home or contact the studio directly.',
+    ogPage: 'not-found',
     path: '/not-found',
     siteSettings,
     title: 'Page Not Found',
