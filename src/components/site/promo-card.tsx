@@ -27,6 +27,7 @@ export function PromoCard({
         alt={promo.promoImage?.alt || promo.promoTitle}
         className="aspect-[16/9] min-h-[14rem] bg-black/75 p-3"
         imageClassName="object-contain object-left"
+        sizes="(min-width: 1024px) 38vw, 100vw"
         showOverlay={false}
         src={getMediaSrc(promo.promoImage, '/placeholders/promo-recording.svg')}
       />

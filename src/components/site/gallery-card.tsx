@@ -16,6 +16,7 @@ export function GalleryCard({ item }: GalleryCardProps) {
       <MediaFrame
         alt={item.images[0]?.alt || item.title}
         className="aspect-[4/5] min-h-[18rem] rounded-none border-0"
+        sizes="(min-width: 1280px) 30vw, (min-width: 768px) 46vw, 100vw"
         src={getMediaSrc(item.images[0], '/placeholders/gallery-session.svg')}
       />
 

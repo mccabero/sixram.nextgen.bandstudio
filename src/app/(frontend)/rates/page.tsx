@@ -1,3 +1,5 @@
+import type { Metadata } from 'next'
+
 import { BookNowButton } from '@/components/site/book-now-button'
 import { EmptyState } from '@/components/site/empty-state'
 import { PageHeading } from '@/components/site/page-heading'
@@ -6,11 +8,20 @@ import { PromoCard } from '@/components/site/promo-card'
 import { RateCard } from '@/components/site/rate-card'
 import { SectionContainer } from '@/components/site/section-container'
 import { bookingNotes } from '@/lib/placeholders'
-import { getPromosData, getRatesData, getSiteSettingsData } from '@/lib/site-data'
+import { buildPageMetadata } from '@/lib/seo'
+import { getContactInfoData, getPromosData, getRatesData, getSiteSettingsData } from '@/lib/site-data'
 import { getPrimaryCtaHref } from '@/lib/utils'
 
-export const metadata = {
-  title: 'Rates',
+export async function generateMetadata(): Promise<Metadata> {
+  const [siteSettings, contactInfo] = await Promise.all([getSiteSettingsData(), getContactInfoData()])
+
+  return buildPageMetadata({
+    contactInfo,
+    description: 'View Sixram Band Studio rehearsal rates, promo packages, inclusions, and booking notes.',
+    path: '/rates',
+    siteSettings,
+    title: 'Rates',
+  })
 }
 
 export default async function RatesPage() {

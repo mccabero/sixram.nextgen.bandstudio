@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 
 import { Footer } from '@/components/site/footer'
 import { Header } from '@/components/site/header'
+import { buildBusinessStructuredData, buildPageMetadata, resolveMetadataBase } from '@/lib/seo'
 import { getContactInfoData, getSiteSettingsData } from '@/lib/site-data'
 import { getPrimaryCtaHref } from '@/lib/utils'
 
@@ -20,28 +21,22 @@ const bodyFont = Space_Grotesk({
   variable: '--font-space-grotesk',
 })
 
-const fallbackMetadataBase = 'http://localhost:3000'
-
-function resolveMetadataBase() {
-  const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()
-
-  if (!configuredUrl) {
-    return new URL(fallbackMetadataBase)
-  }
-
-  try {
-    return new URL(configuredUrl)
-  } catch {
-    return new URL(fallbackMetadataBase)
-  }
-}
-
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
   const [siteSettings, contactInfo] = await Promise.all([getSiteSettingsData(), getContactInfoData()])
+  const homeMetadata = buildPageMetadata({
+    contactInfo,
+    description: siteSettings.seoDescription,
+    path: '/',
+    siteSettings,
+    title: siteSettings.seoTitle,
+    useAbsoluteTitle: true,
+  })
 
   return {
+    ...homeMetadata,
+    applicationName: contactInfo.studioName,
     description: siteSettings.seoDescription,
     metadataBase: resolveMetadataBase(),
     title: {
@@ -58,6 +53,7 @@ type FrontendLayoutProps = {
 export default async function FrontendLayout({ children }: FrontendLayoutProps) {
   const [siteSettings, contactInfo] = await Promise.all([getSiteSettingsData(), getContactInfoData()])
   const ctaHref = getPrimaryCtaHref(siteSettings.mainCtaLink)
+  const businessStructuredData = buildBusinessStructuredData({ contactInfo, siteSettings })
 
   return (
     <html
@@ -66,6 +62,13 @@ export default async function FrontendLayout({ children }: FrontendLayoutProps) 
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-background text-foreground antialiased">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(businessStructuredData),
+          }}
+          id="structured-data-local-business"
+          type="application/ld+json"
+        />
         <div className="flex min-h-screen flex-col">
           <Header
             ctaHref={ctaHref}

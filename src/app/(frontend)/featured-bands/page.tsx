@@ -1,14 +1,25 @@
+import type { Metadata } from 'next'
+
 import { BandCard } from '@/components/site/band-card'
 import { BookNowButton } from '@/components/site/book-now-button'
 import { EmptyState } from '@/components/site/empty-state'
 import { PageHeading } from '@/components/site/page-heading'
 import { PageShell } from '@/components/site/page-shell'
 import { SectionContainer } from '@/components/site/section-container'
-import { getFeaturedBandsData, getSiteSettingsData } from '@/lib/site-data'
+import { buildPageMetadata } from '@/lib/seo'
+import { getContactInfoData, getFeaturedBandsData, getSiteSettingsData } from '@/lib/site-data'
 import { getPrimaryCtaHref } from '@/lib/utils'
 
-export const metadata = {
-  title: 'Featured Bands',
+export async function generateMetadata(): Promise<Metadata> {
+  const [siteSettings, contactInfo] = await Promise.all([getSiteSettingsData(), getContactInfoData()])
+
+  return buildPageMetadata({
+    contactInfo,
+    description: 'Discover featured bands and artists who rehearsed or recorded at Sixram Band Studio.',
+    path: '/featured-bands',
+    siteSettings,
+    title: 'Featured Bands',
+  })
 }
 
 export default async function FeaturedBandsPage() {

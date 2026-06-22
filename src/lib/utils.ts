@@ -288,6 +288,40 @@ export function isExternalUrl(url?: string | null) {
   return Boolean(url && /^https?:\/\//i.test(url))
 }
 
+export function hasMeaningfulExternalUrl(url?: string | null) {
+  if (!url || !isExternalUrl(url)) {
+    return false
+  }
+
+  try {
+    const parsed = new URL(url)
+    const host = parsed.hostname.replace(/^www\./, '')
+    const pathname = parsed.pathname.replace(/\/+$/, '') || '/'
+    const hasExtraPath = pathname !== '/'
+    const hasQuery = Boolean(parsed.search)
+
+    if (host === 'facebook.com' && !hasExtraPath && !hasQuery) {
+      return false
+    }
+
+    if (host === 'instagram.com' && !hasExtraPath && !hasQuery) {
+      return false
+    }
+
+    if (host === 'tiktok.com' && !hasExtraPath && !hasQuery) {
+      return false
+    }
+
+    if (host === 'maps.google.com' && !hasExtraPath && !hasQuery) {
+      return false
+    }
+
+    return true
+  } catch {
+    return false
+  }
+}
+
 export function getPrimaryCtaHref(url?: string | null) {
   return url?.trim() || '/contact'
 }

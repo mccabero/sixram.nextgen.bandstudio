@@ -1,6 +1,6 @@
 # Sixram Band Studio Website
 
-Public website and Payload CMS-powered content platform for Sixram Band Studio. The current implementation includes the Phase 1 public website, the Phase 2 homepage cleanup, and the Phase 3 Payload CMS refinements for easier content management, safer publishing, and stronger public fallbacks.
+Public website and Payload CMS-powered content platform for Sixram Band Studio. The current implementation includes the Phase 1 public website, the Phase 2 homepage cleanup, the Phase 3 Payload CMS refinements, and the Phase 4 launch-ready polish for SEO, social sharing, sitemap, robots.txt, accessibility, and production fallbacks.
 
 ## Tech Stack
 
@@ -75,8 +75,13 @@ Example values are provided in `.env.example`.
 
 * `DATABASE_URL`: Neon PostgreSQL connection string used by Payload's Postgres adapter
 * `PAYLOAD_SECRET`: secret used by Payload authentication and session handling
-* `NEXT_PUBLIC_SITE_URL`: base URL for local and deployed metadata
+* `NEXT_PUBLIC_SITE_URL`: base public website URL used for canonical URLs, Open Graph URLs, sitemap output, robots.txt host, and structured data
 * `BLOB_READ_WRITE_TOKEN`: optional in local development, but required on Vercel if you want Payload media uploads to work reliably
+
+`NEXT_PUBLIC_SITE_URL` examples:
+
+* Local: `http://localhost:3000`
+* Hosted: `https://your-public-domain.vercel.app`
 
 ## Useful Commands
 
@@ -110,6 +115,8 @@ Notes:
 * If `Main CTA Link` is empty, the public website falls back to `/contact`.
 * If `Hero Image` is empty, the homepage uses a clean dark fallback panel.
 * If `Logo` is empty, the header and footer fall back to bundled studio branding.
+* `SEO Title` and `SEO Description` power the default metadata for the homepage and the site-wide social preview fallback.
+* Social sharing uses the Site Settings hero image first when a real image is available, then falls back to the studio logo.
 
 ### Contact Info
 
@@ -229,6 +236,42 @@ Promo image note:
 * Public promo title, description, and pricing come from CMS text fields.
 * Promo images are displayed inside a dark 16:9 container with contained scaling to protect poster text from being cropped.
 
+## SEO and Sharing
+
+The public website now includes:
+
+* Page-level metadata for Home, Schedule, Rates, Gallery, Featured Bands, Promos, and Contact
+* Canonical URLs based on `NEXT_PUBLIC_SITE_URL`
+* Open Graph and Twitter card metadata for better Facebook, Messenger, and link previews
+* JSON-LD structured data for the studio as a `LocalBusiness`
+* A generated sitemap at `/sitemap.xml`
+* A generated robots file at `/robots.txt`
+
+Notes:
+
+* `/admin` is disallowed in `robots.txt` and is not added to the sitemap.
+* Structured data only includes phone, address, and Facebook fields when meaningful public values are available.
+* Generic placeholder social URLs are hidden from public pages and excluded from structured data.
+
+## Metadata Reference
+
+Default metadata values come from `Site Settings`:
+
+* `SEO Title`
+* `SEO Description`
+* `Hero Image`
+* `Logo`
+
+Per-page metadata is branded automatically and uses the following patterns:
+
+* Home: default SEO title and description from `Site Settings`
+* Rates: `Rates | Sixram Band Studio`
+* Gallery: `Gallery | Sixram Band Studio`
+* Featured Bands: `Featured Bands | Sixram Band Studio`
+* Promos: `Promos | Sixram Band Studio`
+* Schedule: `Schedule | Sixram Band Studio`
+* Contact: `Contact | Sixram Band Studio`
+
 ### Daily Schedules
 
 Add the public day-by-day availability entries in `Daily Schedules`.
@@ -306,8 +349,29 @@ corepack pnpm run seed
 
 * Deploy this project as a standard Next.js application.
 * Set the same environment variables from `.env.example` in the Vercel project settings.
-* Keep `NEXT_PUBLIC_SITE_URL` aligned with your production domain.
+* Keep `NEXT_PUBLIC_SITE_URL` aligned with your production domain so metadata, sitemap, robots.txt, and structured data all point to the correct public URL.
 * If you deploy from the Vercel CLI on Windows, avoid uploading a Windows-built prebuilt artifact for production. Let Vercel build on Linux from the repository, or reinstall dependencies before deployment so Linux `sharp` binaries are included.
+
+## Final Pre-Deployment Checklist
+
+Before launch:
+
+* Set a real `NEXT_PUBLIC_SITE_URL`
+* Confirm `SEO Title` and `SEO Description` in Payload `Site Settings`
+* Upload a real hero image or logo for social sharing
+* Verify Contact Info values are real public details
+* Confirm active promos have correct start and end dates
+* Confirm gallery items are approved before posting
+* Confirm featured bands only include real public social links
+* Visit `/sitemap.xml`
+* Visit `/robots.txt`
+* Test the public pages on mobile and desktop
+* Run:
+
+```bash
+corepack pnpm run lint
+corepack pnpm run build
+```
 
 ### Neon PostgreSQL
 

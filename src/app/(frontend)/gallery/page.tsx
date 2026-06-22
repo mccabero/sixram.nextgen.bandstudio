@@ -1,14 +1,25 @@
+import type { Metadata } from 'next'
+
 import { BookNowButton } from '@/components/site/book-now-button'
 import { EmptyState } from '@/components/site/empty-state'
 import { GalleryCard } from '@/components/site/gallery-card'
 import { PageHeading } from '@/components/site/page-heading'
 import { PageShell } from '@/components/site/page-shell'
 import { SectionContainer } from '@/components/site/section-container'
-import { getGalleryData, getSiteSettingsData } from '@/lib/site-data'
+import { buildPageMetadata } from '@/lib/seo'
+import { getContactInfoData, getGalleryData, getSiteSettingsData } from '@/lib/site-data'
 import { cn, getPrimaryCtaHref } from '@/lib/utils'
 
-export const metadata = {
-  title: 'Gallery',
+export async function generateMetadata(): Promise<Metadata> {
+  const [siteSettings, contactInfo] = await Promise.all([getSiteSettingsData(), getContactInfoData()])
+
+  return buildPageMetadata({
+    contactInfo,
+    description: 'View studio photos, band rehearsal sessions, and live recording moments at Sixram Band Studio.',
+    path: '/gallery',
+    siteSettings,
+    title: 'Gallery',
+  })
 }
 
 export default async function GalleryPage() {

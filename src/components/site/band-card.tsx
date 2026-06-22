@@ -10,17 +10,17 @@ type BandCardProps = {
 }
 
 type SocialLink = {
-  href?: string | null
+  href: string
   icon: typeof Globe
   label: string
 }
 
 export function BandCard({ band }: BandCardProps) {
-  const socialLinks: SocialLink[] = [
+  const socialLinks = [
     { href: band.facebookLink, icon: Globe, label: 'Facebook' },
     { href: band.instagramLink, icon: ImageIcon, label: 'Instagram' },
     { href: band.tiktokLink, icon: Music2, label: 'TikTok' },
-  ].filter((entry) => entry.href)
+  ].filter((entry): entry is SocialLink => Boolean(entry.href))
 
   const embedUrl = getYouTubeEmbedUrl(band.youtubeVideoUrl)
 
@@ -31,6 +31,7 @@ export function BandCard({ band }: BandCardProps) {
           <MediaFrame
             alt={band.bandPhoto?.alt || band.bandName}
             className="aspect-[4/3] min-h-[18rem] rounded-[1.5rem]"
+            sizes="(min-width: 1280px) 28vw, 100vw"
             src={getMediaSrc(band.bandPhoto, '/placeholders/featured-band.svg')}
           />
 
@@ -56,7 +57,7 @@ export function BandCard({ band }: BandCardProps) {
                 <Link
                   key={label}
                   className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-muted-foreground transition hover:border-white/18 hover:text-white"
-                  href={href || '/featured-bands'}
+                  href={href}
                   rel={isExternalUrl(href) ? 'noreferrer' : undefined}
                   target={isExternalUrl(href) ? '_blank' : undefined}
                 >

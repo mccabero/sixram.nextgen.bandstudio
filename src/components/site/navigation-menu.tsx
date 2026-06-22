@@ -33,15 +33,20 @@ export function NavigationMenu({
 }: NavigationMenuProps) {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
+  const menuPanelId = 'site-mobile-navigation'
 
   return (
     <div className="relative flex items-center justify-end gap-3 lg:justify-center">
-      <nav className="hidden items-center gap-1 rounded-full border border-white/8 bg-white/[0.03] p-1 lg:flex">
+      <nav
+        aria-label="Primary navigation"
+        className="hidden items-center gap-1 rounded-full border border-white/8 bg-white/[0.03] p-1 lg:flex"
+      >
         {links.map((link) => {
           const active = isLinkActive(pathname, link.href)
 
           return (
             <Link
+              aria-current={active ? 'page' : undefined}
               key={link.href}
               className={cn(
                 'rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground',
@@ -60,6 +65,7 @@ export function NavigationMenu({
       ) : null}
 
       <Button
+        aria-controls={menuPanelId}
         aria-expanded={isOpen}
         aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
         className="lg:hidden"
@@ -71,7 +77,10 @@ export function NavigationMenu({
       </Button>
 
       {isOpen ? (
-        <div className="absolute right-0 top-[calc(100%+0.75rem)] w-[min(22rem,92vw)] rounded-[1.6rem] border border-white/10 bg-[rgba(4,4,4,0.97)] p-4 shadow-[0_32px_90px_-36px_rgba(0,0,0,0.88)] backdrop-blur xl:hidden">
+        <div
+          className="absolute right-0 top-[calc(100%+0.75rem)] w-[min(22rem,92vw)] rounded-[1.6rem] border border-white/10 bg-[rgba(4,4,4,0.97)] p-4 shadow-[0_32px_90px_-36px_rgba(0,0,0,0.88)] backdrop-blur xl:hidden"
+          id={menuPanelId}
+        >
           <div className="mb-4">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Navigation</p>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -79,12 +88,13 @@ export function NavigationMenu({
             </p>
           </div>
 
-          <nav className="flex flex-col gap-2">
+          <nav aria-label="Mobile navigation" className="flex flex-col gap-2">
             {links.map((link) => {
               const active = isLinkActive(pathname, link.href)
 
               return (
                 <Link
+                  aria-current={active ? 'page' : undefined}
                   key={link.href}
                   className={cn(
                     'rounded-[1.15rem] px-4 py-3 text-sm font-medium text-muted-foreground transition hover:bg-white/6 hover:text-foreground',

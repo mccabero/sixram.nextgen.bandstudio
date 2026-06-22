@@ -1,14 +1,25 @@
+import type { Metadata } from 'next'
+
 import { BookNowButton } from '@/components/site/book-now-button'
 import { EmptyState } from '@/components/site/empty-state'
 import { PageHeading } from '@/components/site/page-heading'
 import { PageShell } from '@/components/site/page-shell'
 import { PromoCard } from '@/components/site/promo-card'
 import { SectionContainer } from '@/components/site/section-container'
-import { getPromosData, getSiteSettingsData } from '@/lib/site-data'
+import { buildPageMetadata } from '@/lib/seo'
+import { getContactInfoData, getPromosData, getSiteSettingsData } from '@/lib/site-data'
 import { getPrimaryCtaHref } from '@/lib/utils'
 
-export const metadata = {
-  title: 'Promos',
+export async function generateMetadata(): Promise<Metadata> {
+  const [siteSettings, contactInfo] = await Promise.all([getSiteSettingsData(), getContactInfoData()])
+
+  return buildPageMetadata({
+    contactInfo,
+    description: 'Check current rehearsal and live recording promos from Sixram Band Studio.',
+    path: '/promos',
+    siteSettings,
+    title: 'Promos',
+  })
 }
 
 export default async function PromosPage() {

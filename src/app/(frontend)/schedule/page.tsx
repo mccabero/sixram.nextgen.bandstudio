@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
   CalendarDays,
@@ -17,6 +18,7 @@ import { PageHeading } from '@/components/site/page-heading'
 import { PageShell } from '@/components/site/page-shell'
 import { SectionContainer } from '@/components/site/section-container'
 import { Button } from '@/components/ui/button'
+import { buildPageMetadata } from '@/lib/seo'
 import {
   getContactInfoData,
   getScheduleBrowseData,
@@ -36,8 +38,16 @@ import type {
   ScheduleSlotStatus,
 } from '@/types/content'
 
-export const metadata = {
-  title: 'Schedule',
+export async function generateMetadata(): Promise<Metadata> {
+  const [siteSettings, contactInfo] = await Promise.all([getSiteSettingsData(), getContactInfoData()])
+
+  return buildPageMetadata({
+    contactInfo,
+    description: 'Browse today, previous days, and upcoming days to check Sixram Band Studio schedule availability before booking.',
+    path: '/schedule',
+    siteSettings,
+    title: 'Schedule',
+  })
 }
 
 const dayStatusStyles: Record<ScheduleDayStatus, string> = {

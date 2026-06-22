@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, Sparkles } from 'lucide-react'
 
@@ -16,10 +17,27 @@ import {
   getRatesData,
   getSiteSettingsData,
 } from '@/lib/site-data'
+import { buildPageMetadata } from '@/lib/seo'
 import { formatCurrency, formatPromoWindow, getMediaSrc, getPrimaryCtaHref } from '@/lib/utils'
 
-function pickFeaturedItems<T extends { isFeatured?: boolean | null }>(items: T[], limit: number) {
-  return items.filter((item) => Boolean(item.isFeatured)).slice(0, limit)
+function pickPreviewItems<T extends { id: number; isFeatured?: boolean | null }>(items: T[], limit: number) {
+  const featuredItems = items.filter((item) => Boolean(item.isFeatured))
+  const remainingItems = items.filter((item) => !featuredItems.some((featured) => featured.id === item.id))
+
+  return [...featuredItems, ...remainingItems].slice(0, limit)
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [siteSettings, contactInfo] = await Promise.all([getSiteSettingsData(), getContactInfoData()])
+
+  return buildPageMetadata({
+    contactInfo,
+    description: siteSettings.seoDescription,
+    path: '/',
+    siteSettings,
+    title: siteSettings.seoTitle,
+    useAbsoluteTitle: true,
+  })
 }
 
 export default async function HomePage() {
@@ -35,9 +53,9 @@ export default async function HomePage() {
   const ctaHref = getPrimaryCtaHref(siteSettings.mainCtaLink)
   const currentPromo = promos[0]
   const highlightedRate = rates[0]
-  const featuredRates = pickFeaturedItems(rates, 2)
-  const galleryPreview = pickFeaturedItems(gallery, 3)
-  const featuredBandsPreview = pickFeaturedItems(featuredBands, 3)
+  const featuredRates = pickPreviewItems(rates, 3)
+  const galleryPreview = pickPreviewItems(gallery, 3)
+  const featuredBandsPreview = pickPreviewItems(featuredBands, 3)
   const hasHeroImage = Boolean(siteSettings.heroImage?.url || siteSettings.heroImage?.thumbnailUrl)
 
   return (
@@ -93,6 +111,7 @@ export default async function HomePage() {
                 alt={siteSettings.heroImage?.alt || 'Sixram Band Studio hero image'}
                 className="min-h-[26rem] rounded-[1.6rem] lg:min-h-[34rem]"
                 priority
+                sizes="(min-width: 1280px) 42vw, (min-width: 1024px) 44vw, 100vw"
                 src={getMediaSrc(siteSettings.heroImage, '/placeholders/studio-hero.svg')}
               />
             ) : (
@@ -183,6 +202,7 @@ export default async function HomePage() {
             <MediaFrame
               alt={currentPromo.promoImage?.alt || currentPromo.promoTitle}
               className="min-h-[18rem]"
+              sizes="(min-width: 1024px) 40vw, 100vw"
               src={getMediaSrc(currentPromo.promoImage, '/placeholders/promo-recording.svg')}
             />
           </div>
@@ -271,6 +291,7 @@ export default async function HomePage() {
                 <MediaFrame
                   alt={item.images[0]?.alt || item.title}
                   className="min-h-[18rem] rounded-[1.3rem]"
+                  sizes="(min-width: 1280px) 24vw, (min-width: 768px) 45vw, 100vw"
                   src={getMediaSrc(item.images[0], '/placeholders/gallery-session.svg')}
                 />
                 <div className="mt-3 px-1">
@@ -315,6 +336,7 @@ export default async function HomePage() {
                 <MediaFrame
                   alt={band.bandPhoto?.alt || band.bandName}
                   className="min-h-[18rem] rounded-none border-0"
+                  sizes="(min-width: 1280px) 24vw, (min-width: 768px) 45vw, 100vw"
                   src={getMediaSrc(band.bandPhoto, '/placeholders/featured-band.svg')}
                 />
 

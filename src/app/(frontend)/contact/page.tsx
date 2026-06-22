@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Clock3, MapPin, MessageSquareMore, PhoneCall, Radio } from 'lucide-react'
 
@@ -6,11 +7,20 @@ import { PageHeading } from '@/components/site/page-heading'
 import { PageShell } from '@/components/site/page-shell'
 import { SectionContainer } from '@/components/site/section-container'
 import { Button } from '@/components/ui/button'
+import { buildPageMetadata } from '@/lib/seo'
 import { getContactInfoData, getSiteSettingsData } from '@/lib/site-data'
 import { getPhoneHref, getPrimaryCtaHref, isExternalUrl } from '@/lib/utils'
 
-export const metadata = {
-  title: 'Contact',
+export async function generateMetadata(): Promise<Metadata> {
+  const [siteSettings, contactInfo] = await Promise.all([getSiteSettingsData(), getContactInfoData()])
+
+  return buildPageMetadata({
+    contactInfo,
+    description: 'Contact Sixram Band Studio to book your next rehearsal or live recording session.',
+    path: '/contact',
+    siteSettings,
+    title: 'Contact',
+  })
 }
 
 export default async function ContactPage() {

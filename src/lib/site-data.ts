@@ -20,6 +20,7 @@ import type {
   TodayScheduleData,
   SiteSettingsData,
 } from '@/types/content'
+import { cache } from 'react'
 
 import { getPayloadClient, hasCmsEnvironment } from '@/lib/payload'
 import {
@@ -40,6 +41,7 @@ import {
   getCurrentStudioDateKey,
   getScheduleDayStatusLabel,
   getScheduleSlotStatusLabel,
+  hasMeaningfulExternalUrl,
   getTimeValueInMinutes,
   isPromoActive,
   shiftDateKey,
@@ -59,6 +61,22 @@ function optionalText(value: string | null | undefined) {
 
 function requiredText(value: string | null | undefined, fallback: string) {
   return optionalText(value) ?? fallback
+}
+
+function optionalDisplayPhone(value: string | null | undefined) {
+  const normalized = optionalText(value)
+
+  if (!normalized || normalized === placeholderContactInfo.contactNumber) {
+    return null
+  }
+
+  return normalized
+}
+
+function optionalPublicUrl(value: string | null | undefined) {
+  const normalized = optionalText(value)
+
+  return hasMeaningfulExternalUrl(normalized) ? normalized : null
 }
 
 function mediaToAsset(media?: Media | number | null): MediaAsset | null {
@@ -110,13 +128,13 @@ function mapFeaturedBand(band: PayloadFeaturedBand): FeaturedBandItem {
       'Band profile details will appear here once they are added in Payload CMS.',
     ),
     displayOrder: band.displayOrder ?? 100,
-    facebookLink: optionalText(band.facebookLink),
+    facebookLink: optionalPublicUrl(band.facebookLink),
     genre: requiredText(band.genre, 'Band'),
     id: band.id,
-    instagramLink: optionalText(band.instagramLink),
+    instagramLink: optionalPublicUrl(band.instagramLink),
     isFeatured: Boolean(band.isFeatured),
-    tiktokLink: optionalText(band.tiktokLink),
-    youtubeVideoUrl: optionalText(band.youtubeVideoUrl),
+    tiktokLink: optionalPublicUrl(band.tiktokLink),
+    youtubeVideoUrl: optionalPublicUrl(band.youtubeVideoUrl),
   }
 }
 
@@ -211,9 +229,9 @@ function mapContactInfo(contactInfo: PayloadContactInfo): ContactInfoData {
       placeholderContactInfo.bookingInstructions,
     ),
     businessHours: requiredText(contactInfo.businessHours, placeholderContactInfo.businessHours),
-    contactNumber: optionalText(contactInfo.contactNumber),
-    facebookPage: optionalText(contactInfo.facebookPage),
-    googleMapsLink: optionalText(contactInfo.googleMapsLink),
+    contactNumber: optionalDisplayPhone(contactInfo.contactNumber),
+    facebookPage: optionalPublicUrl(contactInfo.facebookPage),
+    googleMapsLink: optionalPublicUrl(contactInfo.googleMapsLink),
     studioName: requiredText(contactInfo.studioName, placeholderContactInfo.studioName),
   }
 }
@@ -244,7 +262,7 @@ async function withCmsFallback<T>(fallback: T, loader: () => Promise<T>) {
   }
 }
 
-export async function getRatesData() {
+export const getRatesData = cache(async () => {
   return withCmsFallback(placeholderRates, async () => {
     const payload = await getPayloadClient()
     const result = await payload.find({
@@ -257,9 +275,9 @@ export async function getRatesData() {
       mapRate,
     )
   })
-}
+})
 
-export async function getGalleryData() {
+export const getGalleryData = cache(async () => {
   return withCmsFallback(placeholderGallery, async () => {
     const payload = await getPayloadClient()
     const result = await payload.find({
@@ -272,9 +290,9 @@ export async function getGalleryData() {
       (result.docs as PayloadGallery[]).filter((item) => Boolean(item.approvedForPosting)),
     ).map(mapGalleryItem)
   })
-}
+})
 
-export async function getFeaturedBandsData() {
+export const getFeaturedBandsData = cache(async () => {
   return withCmsFallback(placeholderFeaturedBands, async () => {
     const payload = await getPayloadClient()
     const result = await payload.find({
@@ -285,9 +303,9 @@ export async function getFeaturedBandsData() {
 
     return sortFeaturedFirst(result.docs as PayloadFeaturedBand[]).map(mapFeaturedBand)
   })
-}
+})
 
-export async function getPromosData() {
+export const getPromosData = cache(async () => {
   return withCmsFallback(placeholderPromos, async () => {
     const payload = await getPayloadClient()
     const result = await payload.find({
@@ -306,9 +324,9 @@ export async function getPromosData() {
       ),
     ).map(mapPromo)
   })
-}
+})
 
-export async function getScheduleBrowseData(selectedDateKey?: string | null) {
+export const getScheduleBrowseData = cache(async (selectedDateKey?: string | null) => {
   const todayKey = getCurrentStudioDateKey()
   const activeDateKey = selectedDateKey || todayKey
   const visibleDateKeys = getDateKeysAround(activeDateKey, 3, 3)
@@ -400,9 +418,9 @@ export async function getScheduleBrowseData(selectedDateKey?: string | null) {
       ),
     }
   })
-}
+})
 
-export async function getContactInfoData() {
+export const getContactInfoData = cache(async () => {
   return withCmsFallback(placeholderContactInfo, async () => {
     const payload = await getPayloadClient()
     const result = (await payload.findGlobal({
@@ -412,9 +430,9 @@ export async function getContactInfoData() {
 
     return mapContactInfo(result)
   })
-}
+})
 
-export async function getSiteSettingsData() {
+export const getSiteSettingsData = cache(async () => {
   return withCmsFallback(placeholderSiteSettings, async () => {
     const payload = await getPayloadClient()
     const result = (await payload.findGlobal({
@@ -424,4 +442,4 @@ export async function getSiteSettingsData() {
 
     return mapSiteSettings(result)
   })
-}
+})
