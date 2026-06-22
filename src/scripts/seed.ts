@@ -6,6 +6,7 @@ import configPromise from '@payload-config'
 import { getPayload, type Payload } from 'payload'
 
 import {
+  getPlaceholderSchedule,
   placeholderContactInfo,
   placeholderFeaturedBands,
   placeholderGallery,
@@ -14,7 +15,7 @@ import {
   placeholderSiteSettings,
 } from '@/lib/placeholders'
 
-type CollectionSlug = 'featured-bands' | 'gallery' | 'promos' | 'rates'
+type CollectionSlug = 'daily-schedules' | 'featured-bands' | 'gallery' | 'promos' | 'rates'
 type RelationId = number
 
 const placeholderMediaFiles = {
@@ -234,6 +235,32 @@ async function seedGallery(payload: Payload, mediaIds: SeededMediaIds) {
   }
 }
 
+async function seedDailySchedules(payload: Payload) {
+  const placeholderTodaySchedule = getPlaceholderSchedule()
+
+  await upsertCollectionItem({
+    collection: 'daily-schedules',
+    data: {
+      dayStatus: placeholderTodaySchedule.dayStatus,
+      isPublished: true,
+      publicNote: placeholderTodaySchedule.publicNote,
+      scheduleDate: `${placeholderTodaySchedule.dateKey}T00:00:00.000Z`,
+      scheduleDateKey: placeholderTodaySchedule.dateKey,
+      timeSlots: placeholderTodaySchedule.slots.map((slot) => ({
+        endTime: slot.endTime,
+        internalClientName: slot.hasVisibleBandName ? slot.label : '',
+        publicDisplayName: slot.hasVisibleBandName ? slot.label : '',
+        showPublicName: slot.hasVisibleBandName,
+        startTime: slot.startTime,
+        status: slot.status,
+      })),
+    },
+    field: 'scheduleDateKey',
+    payload,
+    value: placeholderTodaySchedule.dateKey,
+  })
+}
+
 async function seedGlobals(payload: Payload, mediaIds: SeededMediaIds) {
   await payload.updateGlobal({
     data: {
@@ -278,6 +305,7 @@ async function run() {
   await seedPromos(payload, mediaIds)
   await seedFeaturedBands(payload, mediaIds)
   await seedGallery(payload, mediaIds)
+  await seedDailySchedules(payload)
   await seedGlobals(payload, mediaIds)
 
   console.log('Phase 3 starter content has been seeded.')

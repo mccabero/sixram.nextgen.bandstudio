@@ -20,6 +20,7 @@ Public website and Payload CMS-powered content platform for Sixram Band Studio. 
 * Gallery: `/gallery`
 * Featured Bands: `/featured-bands`
 * Promos: `/promos`
+* Schedule: `/schedule`
 * Contact: `/contact`
 
 ## Payload Admin
@@ -33,6 +34,7 @@ Payload manages:
 * Gallery
 * Featured Bands
 * Promos
+* Daily Schedules
 * Media
 * Contact Info
 * Site Settings
@@ -226,6 +228,32 @@ Promo image note:
 
 * Public promo title, description, and pricing come from CMS text fields.
 * Promo images are displayed inside a dark 16:9 container with contained scaling to protect poster text from being cropped.
+
+### Daily Schedules
+
+Add the public day-by-day availability entries in `Daily Schedules`.
+
+Recommended fields:
+
+* Schedule Date
+* Day Status
+* Public Note
+* Published
+* Time Slots
+* Internal Band / Client Name
+* Public Display Name
+* Show Public Display Name
+
+Public behavior:
+
+* The `/schedule` page shows the published schedule for the selected studio day.
+* The `/schedule` page also lets visitors move through previous and upcoming days to review posted availability.
+* Only one schedule can exist per day because `Schedule Date Key` is generated automatically and kept unique.
+* Slot times are expected in 12-hour `h:mm AM/PM` format and cannot overlap.
+* `Internal Band / Client Name` is the default public band/client name for reserved slots.
+* `Public Display Name` is an optional override that can replace the default name when `Show Public Display Name` is enabled.
+* When a reserved slot has no band/client name entered, the website shows `Reserved`.
+* When a reserved slot has a band/client name, the website shows that name instead of a separate reserved label.
 
 ### Media
 

@@ -11,6 +11,7 @@ import { Gallery } from '@/collections/Gallery'
 import { Media } from '@/collections/Media'
 import { Promos } from '@/collections/Promos'
 import { Rates } from '@/collections/Rates'
+import { DailySchedules } from '@/collections/DailySchedules'
 import { Users } from '@/collections/Users'
 import { ContactInfo } from '@/globals/ContactInfo'
 import { SiteSettings } from '@/globals/SiteSettings'
@@ -36,7 +37,7 @@ export default buildConfig({
     },
     user: Users.slug,
   },
-  collections: [Users, Media, Rates, Gallery, FeaturedBands, Promos],
+  collections: [Users, Media, Rates, Gallery, FeaturedBands, Promos, DailySchedules],
   db: postgresAdapter({
     pool: {
       connectionString: databaseUrl,

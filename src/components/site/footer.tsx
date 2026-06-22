@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 import { BookNowButton } from '@/components/site/book-now-button'
 import { SectionContainer } from '@/components/site/section-container'
-import { siteNavigation } from '@/lib/placeholders'
+import { footerNavigation } from '@/lib/placeholders'
 import { getMediaSrc, getPhoneHref, isExternalUrl } from '@/lib/utils'
 import type { ContactInfoData, MediaAsset } from '@/types/content'
 
@@ -71,7 +71,7 @@ export function Footer({ contactInfo, ctaHref, ctaLabel, logo }: FooterProps) {
               Explore
             </p>
             <div className="grid gap-3 text-sm">
-              {siteNavigation.map((link) => (
+              {footerNavigation.map((link) => (
                 <Link
                   key={link.href}
                   className="text-muted-foreground transition hover:text-white"

@@ -24,6 +24,12 @@ export const publicReadApprovedGallery = allowAdminOrFilter({
   },
 })
 
+export const publicReadPublishedDailySchedules = allowAdminOrFilter({
+  isPublished: {
+    equals: true,
+  },
+})
+
 export const publicReadActivePromos: Access = ({ req }) => {
   if (req.user) {
     return true

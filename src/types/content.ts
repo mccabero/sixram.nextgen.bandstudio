@@ -60,6 +60,49 @@ export type PromoItem = {
   startDate?: string | null
 }
 
+export type ScheduleDayStatus = 'open' | 'limited' | 'fully-booked' | 'closed'
+
+export type ScheduleSlotStatus = 'available' | 'reserved' | 'blocked' | 'fully-booked'
+
+export type ScheduleSlotItem = {
+  endTime: string
+  hasVisibleBandName: boolean
+  id: string
+  label: string
+  startTime: string
+  status: ScheduleSlotStatus
+  timeLabel: string
+}
+
+export type TodayScheduleData = {
+  dateKey: string
+  dayStatus: ScheduleDayStatus
+  dayStatusLabel: string
+  displayDate: string
+  publicNote?: string | null
+  slots: ScheduleSlotItem[]
+}
+
+export type ScheduleDateOption = {
+  dateKey: string
+  dayStatus?: ScheduleDayStatus | null
+  dayStatusLabel?: string | null
+  displayDate: string
+  hasSchedule: boolean
+  isToday: boolean
+  shortDateLabel: string
+  weekdayLabel: string
+}
+
+export type ScheduleBrowseData = {
+  activeDateKey: string
+  activeDisplayDate: string
+  nextDateKey: string
+  previousDateKey: string
+  schedule: TodayScheduleData | null
+  visibleDates: ScheduleDateOption[]
+}
+
 export type ContactInfoData = {
   address: string
   bookingInstructions: string

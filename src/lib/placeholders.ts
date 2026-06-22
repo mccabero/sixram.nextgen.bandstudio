@@ -5,15 +5,28 @@ import type {
   NavLink,
   PromoItem,
   RateItem,
+  TodayScheduleData,
   SiteSettingsData,
 } from '@/types/content'
+import {
+  formatScheduleRange,
+  formatStudioDateLabel,
+  getCurrentStudioDateKey,
+} from '@/lib/utils'
 
 export const siteNavigation: NavLink[] = [
   { href: '/', label: 'Home' },
+  { href: '/schedule', label: 'Schedule' },
   { href: '/rates', label: 'Rates' },
   { href: '/gallery', label: 'Gallery' },
+  { href: '/contact', label: 'Contact' },
+]
+
+export const footerNavigation: NavLink[] = [
+  { href: '/', label: 'Home' },
   { href: '/featured-bands', label: 'Featured Bands' },
   { href: '/promos', label: 'Promos' },
+  { href: '/schedule', label: 'Schedule' },
   { href: '/contact', label: 'Contact' },
 ]
 
@@ -143,3 +156,61 @@ export const placeholderGallery: GalleryItem[] = [
     title: 'Live Recording Session Placeholder',
   },
 ]
+
+export function getPlaceholderSchedule(dateKey = getCurrentStudioDateKey()): TodayScheduleData {
+
+  return {
+    dateKey,
+    dayStatus: 'limited',
+    dayStatusLabel: 'Limited Availability',
+    displayDate: formatStudioDateLabel(dateKey) || 'Today',
+    publicNote: bookingNotes.join(' '),
+    slots: [
+      {
+        endTime: '15:00',
+        hasVisibleBandName: false,
+        id: 'slot-1',
+        label: 'Available',
+        startTime: '13:00',
+        status: 'available',
+        timeLabel: formatScheduleRange('13:00', '15:00') || '1:00 PM - 3:00 PM',
+      },
+      {
+        endTime: '17:00',
+        hasVisibleBandName: false,
+        id: 'slot-2',
+        label: 'Reserved',
+        startTime: '15:00',
+        status: 'reserved',
+        timeLabel: formatScheduleRange('15:00', '17:00') || '3:00 PM - 5:00 PM',
+      },
+      {
+        endTime: '18:00',
+        hasVisibleBandName: false,
+        id: 'slot-3',
+        label: 'Blocked',
+        startTime: '17:00',
+        status: 'blocked',
+        timeLabel: formatScheduleRange('17:00', '18:00') || '5:00 PM - 6:00 PM',
+      },
+      {
+        endTime: '20:00',
+        hasVisibleBandName: true,
+        id: 'slot-4',
+        label: 'Midnight Echoes',
+        startTime: '18:00',
+        status: 'reserved',
+        timeLabel: formatScheduleRange('18:00', '20:00') || '6:00 PM - 8:00 PM',
+      },
+      {
+        endTime: '22:00',
+        hasVisibleBandName: false,
+        id: 'slot-5',
+        label: 'Fully Booked',
+        startTime: '20:00',
+        status: 'fully-booked',
+        timeLabel: formatScheduleRange('20:00', '22:00') || '8:00 PM - 10:00 PM',
+      },
+    ],
+  }
+}

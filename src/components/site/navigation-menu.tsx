@@ -14,6 +14,7 @@ type NavigationMenuProps = {
   ctaHref?: string | null
   ctaLabel?: string
   links: NavLink[]
+  showDesktopCta?: boolean
 }
 
 function isLinkActive(pathname: string, href: string) {
@@ -24,12 +25,17 @@ function isLinkActive(pathname: string, href: string) {
   return pathname.startsWith(href)
 }
 
-export function NavigationMenu({ ctaHref, ctaLabel, links }: NavigationMenuProps) {
+export function NavigationMenu({
+  ctaHref,
+  ctaLabel,
+  links,
+  showDesktopCta = true,
+}: NavigationMenuProps) {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <div className="relative flex items-center gap-3">
+    <div className="relative flex items-center justify-end gap-3 lg:justify-center">
       <nav className="hidden items-center gap-1 rounded-full border border-white/8 bg-white/[0.03] p-1 lg:flex">
         {links.map((link) => {
           const active = isLinkActive(pathname, link.href)
@@ -49,7 +55,9 @@ export function NavigationMenu({ ctaHref, ctaLabel, links }: NavigationMenuProps
         })}
       </nav>
 
-      <BookNowButton className="hidden lg:inline-flex" href={ctaHref} label={ctaLabel} size="sm" />
+      {showDesktopCta ? (
+        <BookNowButton className="hidden lg:inline-flex" href={ctaHref} label={ctaLabel} size="sm" />
+      ) : null}
 
       <Button
         aria-expanded={isOpen}

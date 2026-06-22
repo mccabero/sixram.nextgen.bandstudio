@@ -1,5 +1,6 @@
 import type {
   ContactInfo as PayloadContactInfo,
+  DailySchedule as PayloadDailySchedule,
   FeaturedBand as PayloadFeaturedBand,
   Gallery as PayloadGallery,
   Media,
@@ -14,6 +15,9 @@ import type {
   MediaAsset,
   PromoItem,
   RateItem,
+  ScheduleBrowseData,
+  ScheduleDateOption,
+  TodayScheduleData,
   SiteSettingsData,
 } from '@/types/content'
 
@@ -25,8 +29,23 @@ import {
   placeholderPromos,
   placeholderRates,
   placeholderSiteSettings,
+  getPlaceholderSchedule,
 } from '@/lib/placeholders'
-import { isPromoActive, sortByDisplayOrder, sortFeaturedFirst } from '@/lib/utils'
+import {
+  formatStudioDateShortLabel,
+  formatScheduleRange,
+  formatStudioDateLabel,
+  formatStudioWeekdayLabel,
+  getDateKeysAround,
+  getCurrentStudioDateKey,
+  getScheduleDayStatusLabel,
+  getScheduleSlotStatusLabel,
+  getTimeValueInMinutes,
+  isPromoActive,
+  shiftDateKey,
+  sortByDisplayOrder,
+  sortFeaturedFirst,
+} from '@/lib/utils'
 
 function optionalText(value: string | null | undefined) {
   if (typeof value !== 'string') {
@@ -113,6 +132,74 @@ function mapPromo(promo: PayloadPromo): PromoItem {
     promoPrice: promo.promoPrice,
     promoTitle: requiredText(promo.promoTitle, 'Studio Promo'),
     startDate: promo.startDate,
+  }
+}
+
+function mapTodaySchedule(schedule: PayloadDailySchedule): TodayScheduleData {
+  const dateKey = requiredText(
+    schedule.scheduleDateKey,
+    getCurrentStudioDateKey(),
+  )
+  const rawSlots = Array.isArray(schedule.timeSlots) ? schedule.timeSlots : []
+
+  const slots = [...rawSlots]
+    .sort((left, right) => {
+      const leftMinutes = getTimeValueInMinutes(left.startTime) ?? Number.MAX_SAFE_INTEGER
+      const rightMinutes = getTimeValueInMinutes(right.startTime) ?? Number.MAX_SAFE_INTEGER
+
+      return leftMinutes - rightMinutes
+    })
+    .map((slot, index) => {
+      const publicDisplayName =
+        slot.status === 'reserved'
+          ? optionalText(slot.publicDisplayName)
+          : null
+
+      return {
+        endTime: requiredText(slot.endTime, '00:00'),
+        hasVisibleBandName: Boolean(publicDisplayName),
+        id: String(slot.id ?? `${dateKey}-${index}`),
+        label:
+          publicDisplayName ||
+          getScheduleSlotStatusLabel(
+            (slot.status as TodayScheduleData['slots'][number]['status']) || 'reserved',
+          ),
+        startTime: requiredText(slot.startTime, '00:00'),
+        status: (slot.status as TodayScheduleData['slots'][number]['status']) || 'reserved',
+        timeLabel:
+          formatScheduleRange(slot.startTime, slot.endTime) ||
+          `${requiredText(slot.startTime, '00:00')} - ${requiredText(slot.endTime, '00:00')}`,
+      }
+    })
+
+  return {
+    dateKey,
+    dayStatus: schedule.dayStatus,
+    dayStatusLabel: getScheduleDayStatusLabel(schedule.dayStatus),
+    displayDate: formatStudioDateLabel(dateKey) || 'Today',
+    publicNote: optionalText(schedule.publicNote),
+    slots,
+  }
+}
+
+function createScheduleDateOption({
+  dateKey,
+  todayKey,
+  schedule,
+}: {
+  dateKey: string
+  schedule?: PayloadDailySchedule
+  todayKey: string
+}): ScheduleDateOption {
+  return {
+    dateKey,
+    dayStatus: schedule?.dayStatus ?? null,
+    dayStatusLabel: schedule ? getScheduleDayStatusLabel(schedule.dayStatus) : null,
+    displayDate: formatStudioDateLabel(dateKey) || dateKey,
+    hasSchedule: Boolean(schedule),
+    isToday: dateKey === todayKey,
+    shortDateLabel: formatStudioDateShortLabel(dateKey) || dateKey,
+    weekdayLabel: formatStudioWeekdayLabel(dateKey) || '',
   }
 }
 
@@ -218,6 +305,100 @@ export async function getPromosData() {
         }),
       ),
     ).map(mapPromo)
+  })
+}
+
+export async function getScheduleBrowseData(selectedDateKey?: string | null) {
+  const todayKey = getCurrentStudioDateKey()
+  const activeDateKey = selectedDateKey || todayKey
+  const visibleDateKeys = getDateKeysAround(activeDateKey, 3, 3)
+  const placeholderSchedule = getPlaceholderSchedule(activeDateKey)
+  const fallback: ScheduleBrowseData = {
+    activeDateKey,
+    activeDisplayDate: formatStudioDateLabel(activeDateKey) || 'Selected Day',
+    nextDateKey: shiftDateKey(activeDateKey, 1),
+    previousDateKey: shiftDateKey(activeDateKey, -1),
+    schedule: placeholderSchedule,
+    visibleDates: visibleDateKeys.map((dateKey) =>
+      createScheduleDateOption({
+        dateKey,
+        schedule: dateKey === activeDateKey ? ({ dayStatus: placeholderSchedule.dayStatus } as PayloadDailySchedule) : undefined,
+        todayKey,
+      }),
+    ),
+  }
+
+  return withCmsFallback<ScheduleBrowseData>(fallback, async () => {
+    const payload = await getPayloadClient()
+    const [selectedResult, visibleResult] = await Promise.all([
+      payload.find({
+        collection: 'daily-schedules',
+        depth: 0,
+        limit: 1,
+        where: {
+          and: [
+            {
+              isPublished: {
+                equals: true,
+              },
+            },
+            {
+              scheduleDateKey: {
+                equals: activeDateKey,
+              },
+            },
+          ],
+        },
+      }),
+      payload.find({
+        collection: 'daily-schedules',
+        depth: 0,
+        limit: visibleDateKeys.length,
+        sort: 'scheduleDateKey',
+        where: {
+          and: [
+            {
+              isPublished: {
+                equals: true,
+              },
+            },
+            {
+              scheduleDateKey: {
+                greater_than_equal: visibleDateKeys[0],
+              },
+            },
+            {
+              scheduleDateKey: {
+                less_than_equal: visibleDateKeys[visibleDateKeys.length - 1],
+              },
+            },
+          ],
+        },
+      }),
+    ])
+
+    const schedule = selectedResult.docs[0] as PayloadDailySchedule | undefined
+    const visibleSchedules = visibleResult.docs as PayloadDailySchedule[]
+    const visibleScheduleMap = new Map(
+      visibleSchedules
+        .map((entry) => [optionalText(entry.scheduleDateKey), entry] as const)
+        .filter((entry): entry is [string, PayloadDailySchedule] => Boolean(entry[0])),
+    )
+
+    return {
+      activeDateKey,
+      activeDisplayDate: formatStudioDateLabel(activeDateKey) || 'Selected Day',
+      nextDateKey: shiftDateKey(activeDateKey, 1),
+      previousDateKey: shiftDateKey(activeDateKey, -1),
+      schedule: schedule ? mapTodaySchedule(schedule) : null,
+      visibleDates: visibleDateKeys.map((dateKey) =>
+        createScheduleDateOption({
+          dateKey,
+          schedule: visibleScheduleMap.get(dateKey),
+          todayKey,
+        }),
+      ),
+    }
   })
 }
 
