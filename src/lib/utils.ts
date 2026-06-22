@@ -53,6 +53,19 @@ export function formatDate(value?: string | null) {
   }).format(date)
 }
 
+export function slugify(value?: string | null) {
+  if (!value) {
+    return ''
+  }
+
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/['"]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
 export function formatPromoWindow(startDate?: string | null, endDate?: string | null) {
   const start = formatDate(startDate)
   const end = formatDate(endDate)

@@ -177,7 +177,10 @@ Recommended fields:
 Public behavior:
 
 * Only approved gallery items are shown publicly.
-* Featured gallery items appear first.
+* Approved entries are grouped into client/band gallery profiles using `Band / Client Name`.
+* The public `/gallery` page lists the available client/band profiles first.
+* Each gallery profile opens a detail page with a session image carousel and session highlights.
+* Featured gallery items help determine which image and summary lead the profile card.
 * Missing captions, dates, or images fall back safely.
 
 ### Featured Bands

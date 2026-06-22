@@ -10,6 +10,9 @@ import type {
 } from '@/payload-types'
 import type {
   ContactInfoData,
+  GalleryProfileData,
+  GalleryProfileImage,
+  GalleryProfileSession,
   FeaturedBandItem,
   GalleryItem,
   MediaAsset,
@@ -41,9 +44,11 @@ import {
   getCurrentStudioDateKey,
   getScheduleDayStatusLabel,
   getScheduleSlotStatusLabel,
+  getMediaSrc,
   hasMeaningfulExternalUrl,
   getTimeValueInMinutes,
   isPromoActive,
+  slugify,
   shiftDateKey,
   sortByDisplayOrder,
   sortFeaturedFirst,
@@ -117,6 +122,117 @@ function mapGalleryItem(item: PayloadGallery): GalleryItem {
     sessionDate: item.sessionDate,
     title: requiredText(item.title, 'Gallery Item'),
   }
+}
+
+function getGalleryProfileName(item: GalleryItem) {
+  return item.bandOrClientName || 'Studio Sessions'
+}
+
+function compareGallerySessionDates(left?: string | null, right?: string | null) {
+  const leftTime = left ? new Date(left).getTime() : 0
+  const rightTime = right ? new Date(right).getTime() : 0
+
+  return (Number.isNaN(rightTime) ? 0 : rightTime) - (Number.isNaN(leftTime) ? 0 : leftTime)
+}
+
+function sortGallerySessions(items: GalleryItem[]) {
+  return [...items].sort((left, right) => {
+    if (Boolean(left.isFeatured) !== Boolean(right.isFeatured)) {
+      return left.isFeatured ? -1 : 1
+    }
+
+    const dateDifference = compareGallerySessionDates(left.sessionDate, right.sessionDate)
+
+    if (dateDifference !== 0) {
+      return dateDifference
+    }
+
+    return left.displayOrder - right.displayOrder
+  })
+}
+
+function mapGalleryProfileSession(item: GalleryItem): GalleryProfileSession {
+  return {
+    caption: item.caption,
+    id: item.id,
+    imageCount: item.images.length,
+    images: item.images,
+    isFeatured: item.isFeatured,
+    sessionDate: item.sessionDate,
+    title: item.title,
+  }
+}
+
+function buildGalleryProfileData(items: GalleryItem[]): GalleryProfileData[] {
+  const profileMap = new Map<string, GalleryItem[]>()
+
+  for (const item of items) {
+    const profileName = getGalleryProfileName(item)
+    const existing = profileMap.get(profileName) ?? []
+    existing.push(item)
+    profileMap.set(profileName, existing)
+  }
+
+  const profiles = [...profileMap.entries()]
+    .map(([name, entries]) => {
+      const sessions = sortGallerySessions(entries)
+      const featuredSession = sessions.find((item) => item.isFeatured) ?? sessions[0]
+      const carouselImages: GalleryProfileImage[] = sessions.flatMap((session) =>
+        session.images.map((image, index) => ({
+          alt: image.alt || `${name} session image ${index + 1}`,
+          id: `${session.id}-${index}`,
+          sessionDate: session.sessionDate,
+          sessionTitle: session.title,
+          src: getMediaSrc(image, '/placeholders/gallery-session.svg'),
+        })),
+      )
+
+      return {
+        carouselImages,
+        coverImage: featuredSession?.images[0] ?? null,
+        featuredSessionTitle: featuredSession?.title ?? null,
+        imageCount: carouselImages.length,
+        isFeatured: sessions.some((item) => item.isFeatured),
+        latestSessionDate: sessions[0]?.sessionDate ?? null,
+        name,
+        sessionCount: sessions.length,
+        sessions: sessions.map(mapGalleryProfileSession),
+        slug: slugify(name) || `gallery-profile-${sessions[0]?.id ?? 'studio'}`,
+        summary:
+          featuredSession?.caption ||
+          featuredSession?.title ||
+          'Approved gallery sessions from Sixram Band Studio.',
+      }
+    })
+    .sort((left, right) => {
+      if (left.isFeatured !== right.isFeatured) {
+        return left.isFeatured ? -1 : 1
+      }
+
+      const dateDifference = compareGallerySessionDates(left.latestSessionDate, right.latestSessionDate)
+
+      if (dateDifference !== 0) {
+        return dateDifference
+      }
+
+      return left.name.localeCompare(right.name)
+    })
+
+  const slugCounts = new Map<string, number>()
+
+  return profiles.map((profile) => {
+    const currentCount = slugCounts.get(profile.slug) ?? 0
+    slugCounts.set(profile.slug, currentCount + 1)
+
+    if (currentCount === 0) {
+      return profile
+    }
+
+    return {
+      ...profile,
+      slug: `${profile.slug}-${currentCount + 1}`,
+    }
+  })
 }
 
 function mapFeaturedBand(band: PayloadFeaturedBand): FeaturedBandItem {
@@ -290,6 +406,18 @@ export const getGalleryData = cache(async () => {
       (result.docs as PayloadGallery[]).filter((item) => Boolean(item.approvedForPosting)),
     ).map(mapGalleryItem)
   })
+})
+
+export const getGalleryProfilesData = cache(async () => {
+  const gallery = await getGalleryData()
+
+  return buildGalleryProfileData(gallery)
+})
+
+export const getGalleryProfileBySlug = cache(async (slug: string) => {
+  const profiles = await getGalleryProfilesData()
+
+  return profiles.find((profile) => profile.slug === slug) ?? null
 })
 
 export const getFeaturedBandsData = cache(async () => {

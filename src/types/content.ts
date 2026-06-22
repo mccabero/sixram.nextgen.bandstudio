@@ -33,6 +33,41 @@ export type GalleryItem = {
   title: string
 }
 
+export type GalleryProfileSession = {
+  caption?: string | null
+  id: number
+  imageCount: number
+  images: MediaAsset[]
+  isFeatured: boolean
+  sessionDate?: string | null
+  title: string
+}
+
+export type GalleryProfileImage = {
+  alt: string
+  id: string
+  sessionDate?: string | null
+  sessionTitle: string
+  src: string
+}
+
+export type GalleryProfileSummary = {
+  coverImage?: MediaAsset | null
+  featuredSessionTitle?: string | null
+  imageCount: number
+  isFeatured: boolean
+  latestSessionDate?: string | null
+  name: string
+  sessionCount: number
+  slug: string
+  summary?: string | null
+}
+
+export type GalleryProfileData = GalleryProfileSummary & {
+  carouselImages: GalleryProfileImage[]
+  sessions: GalleryProfileSession[]
+}
+
 export type FeaturedBandItem = {
   bandName: string
   bandPhoto?: MediaAsset | null
